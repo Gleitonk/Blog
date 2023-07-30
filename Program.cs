@@ -6,31 +6,45 @@ using Blog.Data;
 using Blog.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
+LoadBuilderConfiguration(builder);
 ConfigureAuthentication(builder);
 ConfigureMvc(builder);
 ConfigureServices(builder);
 
 var app = builder.Build();
-LoadConfiguration(app);
+LoadAppConfiguration(app);
 
+
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseResponseCompression();
-app.UseStaticFiles();
 app.MapControllers();
+app.UseStaticFiles();
+app.UseResponseCompression();
+
+if (app.Environment.IsDevelopment())
+{
+
+}
+
+
 app.Run();
 
-static void LoadConfiguration(WebApplication app)
+static void LoadBuilderConfiguration(WebApplicationBuilder builder)
 {
-    app.Configuration.GetValue<string>("JwtKey");
-    app.Configuration.GetValue<string>("ApitKeyName");
-    app.Configuration.GetValue<string>("ApitKey");
+    Configuration.JwtKey = builder.Configuration.GetValue<string>("JwtKey");
+    Configuration.ApiKeyName = builder.Configuration.GetValue<string>("ApiKeyName");
+    Configuration.ApiKey = builder.Configuration.GetValue<string>("ApiKey");
+}
 
+static void LoadAppConfiguration(WebApplication app)
+{
     var smtp = new Configuration.SmtpConfiguration();
-    app.Configuration.GetSection("Smtp").Bind(smtp);
+    app.Configuration.GetSection("SmtpConfiguration").Bind(smtp);
     Configuration.Smtp = smtp;
 }
 
@@ -81,7 +95,11 @@ static void ConfigureMvc(WebApplicationBuilder builder)
 
 static void ConfigureServices(WebApplicationBuilder builder)
 {
-    builder.Services.AddDbContext<BlogDataContext>();
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+    builder.Services.AddDbContext<BlogDataContext>(
+        options => options.UseSqlServer(connectionString));
+
     builder.Services.AddTransient<TokenService>();
     builder.Services.AddTransient<EmailService>();
 }

@@ -10,7 +10,7 @@ public class ApiKey : Attribute, IAsyncActionFilter
         ActionExecutingContext context,
         ActionExecutionDelegate next)
     {
-        if (!context.HttpContext.Request.Query.TryGetValue(Configuration.ApitKeyName, out var extractedApiKey))
+        if (!context.HttpContext.Request.Query.TryGetValue(Configuration.ApiKeyName, out var extractedApiKey))
         {
             context.Result = new ContentResult()
             {
@@ -20,7 +20,7 @@ public class ApiKey : Attribute, IAsyncActionFilter
             return;
         }
 
-        if (!Configuration.ApitKey.Equals(extractedApiKey))
+        if (!Configuration.ApiKey.Equals(extractedApiKey))
         {
             context.Result = new ContentResult()
             {

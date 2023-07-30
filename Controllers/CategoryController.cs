@@ -14,7 +14,7 @@ public class CategoryController : ControllerBase
 {
     [HttpGet("v1/categories")]
     public async Task<IActionResult> GetAsync(
-        [FromServices] MemoryCache cache,
+        [FromServices] IMemoryCache cache,
         [FromServices] BlogDataContext context
     )
     {
@@ -48,7 +48,7 @@ public class CategoryController : ControllerBase
         try
         {
             var category = await context.Categories.FirstOrDefaultAsync(x => x.Id == id);
-            if (category == null) return NotFound(new ResultViewModel<Category>("Conteúdo não encontrado."));
+            if (category == null) return NotFound(new ResultViewModel<Category>("Conteï¿½do nï¿½o encontrado."));
             return Ok(new ResultViewModel<Category>(category));
         }
         catch
@@ -96,7 +96,7 @@ public class CategoryController : ControllerBase
         try
         {
             var category = await context.Categories.FirstOrDefaultAsync(x => x.Id == id);
-            if (category == null) return NotFound(StatusCode(500, new ResultViewModel<Category>("Não encontrado.")));
+            if (category == null) return NotFound(StatusCode(500, new ResultViewModel<Category>("Nï¿½o encontrado.")));
 
             category.Name = model.Name;
             category.Slug = model.Slug;
@@ -121,7 +121,7 @@ public class CategoryController : ControllerBase
         try
         {
             var category = await context.Categories.FirstOrDefaultAsync(x => x.Id == id);
-            if (category == null) return NotFound(StatusCode(500, new ResultViewModel<Category>("Não encontrado.")));
+            if (category == null) return NotFound(StatusCode(500, new ResultViewModel<Category>("Nï¿½o encontrado.")));
 
             context.Categories.Remove(category);
             await context.SaveChangesAsync();
