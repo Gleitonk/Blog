@@ -4,11 +4,10 @@ namespace Blog.ViewModels.Accounts;
 
 public class LoginViewModel
 {
-    [Required(ErrorMessage = "O email é obrigatório.")]
-    [EmailAddress(ErrorMessage = "O email é inválido.")]
+    [Required(ErrorMessage = "O email ï¿½ obrigatï¿½rio.")]
+    [EmailAddress(ErrorMessage = "O email ï¿½ invï¿½lido.")]
     public string Email { get; set; }
 
-    [Required(ErrorMessage = "A senha é obrigatório.")]
-    [StringLength(16, MinimumLength = 8, ErrorMessage = "A senha deve conter entre {2} e {1} caracteres.")]
+    [Required(ErrorMessage = "A senha ï¿½ obrigatï¿½rio.")]
     public string Password { get; set; }
 }

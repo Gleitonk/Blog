@@ -15,9 +15,14 @@ ConfigureAuthentication(builder);
 ConfigureMvc(builder);
 ConfigureServices(builder);
 
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+}
+
 var app = builder.Build();
 LoadAppConfiguration(app);
-
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
@@ -26,11 +31,12 @@ app.MapControllers();
 app.UseStaticFiles();
 app.UseResponseCompression();
 
+
 if (app.Environment.IsDevelopment())
 {
-
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
-
 
 app.Run();
 
