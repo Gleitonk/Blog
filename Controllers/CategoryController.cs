@@ -2,8 +2,10 @@ using Blog.Data;
 using Blog.Extensions;
 using Blog.Models;
 using Blog.ViewModels;
+using Blog.ViewModels.Categories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Blog.Controllers;
 
@@ -12,22 +14,29 @@ public class CategoryController : ControllerBase
 {
     [HttpGet("v1/categories")]
     public async Task<IActionResult> GetAsync(
+        [FromServices] MemoryCache cache,
         [FromServices] BlogDataContext context
     )
     {
         try
         {
-            var categories = await context.Categories.ToListAsync();
+            var categories = cache.GetOrCreate("CategoriesCache", entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
+                return GetCategories(context);
+            });
+
             return Ok(new ResultViewModel<List<Category>>(categories));
         }
-        catch (DbUpdateException ex)
-        {
-            return StatusCode(500, new ResultViewModel<List<Category>>("QWE05 - Não foi possível buscar categorias."));
-        }
-        catch (Exception ex)
+        catch
         {
             return StatusCode(500, new ResultViewModel<List<Category>>("AWSE05 - Falha interna no servidor."));
         }
+    }
+
+    private List<Category> GetCategories(BlogDataContext context)
+    {
+        return context.Categories.ToList();
     }
 
     [HttpGet("v1/categories/{id:int}")]
@@ -42,11 +51,7 @@ public class CategoryController : ControllerBase
             if (category == null) return NotFound(new ResultViewModel<Category>("Conteúdo não encontrado."));
             return Ok(new ResultViewModel<Category>(category));
         }
-        catch (DbUpdateException ex)
-        {
-            return StatusCode(500, new ResultViewModel<Category>("QWE06 - Não foi possível buscar categoria."));
-        }
-        catch (Exception ex)
+        catch
         {
             return StatusCode(500, new ResultViewModel<Category>("AWSE06 - Falha interna no servidor."));
         }
@@ -73,11 +78,7 @@ public class CategoryController : ControllerBase
             await context.SaveChangesAsync();
             return Created($"v1/categories/{category.Id}", category);
         }
-        catch (DbUpdateException ex)
-        {
-            return StatusCode(500, new ResultViewModel<Category>("QWE07 - Não foi possível incluir a categoria."));
-        }
-        catch (Exception ex)
+        catch
         {
             return StatusCode(500, new ResultViewModel<Category>("AWSE07 - Falha interna no servidor."));
         }
@@ -105,11 +106,7 @@ public class CategoryController : ControllerBase
 
             return Ok(StatusCode(500, new ResultViewModel<Category>(category)));
         }
-        catch (DbUpdateException ex)
-        {
-            return StatusCode(500, new ResultViewModel<Category>("QWE08 - Não foi possível atualizar a categoria."));
-        }
-        catch (Exception ex)
+        catch
         {
             return StatusCode(500, new ResultViewModel<Category>("AWSE08 - Falha interna no servidor."));
         }
@@ -131,11 +128,7 @@ public class CategoryController : ControllerBase
 
             return Ok(StatusCode(500, new ResultViewModel<Category>(category)));
         }
-        catch (DbUpdateException ex)
-        {
-            return StatusCode(500, new ResultViewModel<Category>("QWE09 - Não foi possível remover a categoria."));
-        }
-        catch (Exception ex)
+        catch
         {
             return StatusCode(500, new ResultViewModel<Category>("AWSE09 - Falha interna no servidor."));
         }

@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace Blog.ViewModels;
 
 public class ResultViewModel<T>
